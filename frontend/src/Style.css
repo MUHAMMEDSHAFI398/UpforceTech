@@ -1,0 +1,16 @@
+.register-input {
+    @apply  w-[341px] h-[37px] px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm;
+}
+.parentBox{
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+.profileInput{
+    @apply  w-[341px] h-[37px] border border-gray-300 placeholder-gray-500 text-gray-900  rounded-md shadow-sm;
+}
+.submitbtn{
+    @apply w-[341px] h-[37px] md:w-[696px] md:h-[37px] bg-red-800 rounded-md shadow-sm text-white text-[20px] hover:bg-green-900
+}
+.profileImg{
+    @apply w-20 h-20 rounded-full bg-blue-500
+}
+
