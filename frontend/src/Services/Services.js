@@ -28,6 +28,5 @@ export const searchUserAPI = (data) => {
 }
 
 export const exportToCsvAPI = () => {
-    console.log("kiki");
     return axios.get('/export-csv')
 }
