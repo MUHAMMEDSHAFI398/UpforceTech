@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../Style.css";
-import { registrationAPI } from "../Services/Services";
+import { editUserWithProfileAPI, edituserAPI } from "../Services/Services";
 import { message, Spin } from "antd";
-import { useNavigate } from "react-router-dom";
-import validate from "../Validation/RegisterValidation";
+import { useNavigate, useLocation } from "react-router-dom";
+import validate from "../Validation/EditUserValidation";
 
-function Registration() {
+function EditUser() {
+  const location = useLocation();
+
   const navigate = useNavigate();
   const initialValues = {
     firstName: "",
@@ -22,6 +24,21 @@ function Registration() {
   const [imageURL, setImageURL] = useState(null);
   const [imageError, setImageError] = useState("");
   const [error, setErrors] = useState({});
+  const [altImg, setaltImg] = useState({});
+  useEffect(() => {
+    const state = location.state;
+    setformValues({
+      firstName: state.firstName,
+      lastName: state.lastName,
+      email: state.email,
+      mobile: state.mobile,
+      status: state.status,
+      location: state.location,
+      file: null,
+    });
+    setGeneder({ gender: state.gender });
+    setaltImg({ file: state.profileImg });
+  }, []);
 
   const handlegenderChange = (e) => {
     const { name, value } = e.target;
@@ -61,53 +78,73 @@ function Registration() {
 
     if (Object.keys(errors).length !== 0) {
       setErrors(errors);
-      setLoading(false)
+      setLoading(false);
     } else {
-      for (const key in formValues) {
-        data.append(key, formValues[key]);
+      if (formValues.file !== null) {
+        for (const key in formValues) {
+          data.append(key, formValues[key]);
+        }
+        const headers = {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        };
+        const id = location.state._id;
+        editUserWithProfileAPI(id, data, headers)
+          .then((res) => {
+            if (res.data.imageError) {
+              setImageError(res.data.imageError);
+            } else {
+              message.success("Successfully Edited the user");
+              setLoading(false);
+              navigate("/users");
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            navigate("/error");
+          });
+      } else {
+        const id = location.state._id;
+        edituserAPI(id, formValues)
+          .then((res) => {
+            if (res.data.imageError) {
+              setImageError(res.data.imageError);
+            } else {
+              message.success("Successfully Edited the user");
+              setLoading(false);
+              navigate("/users");
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            navigate("/error");
+          });
       }
-      const headers = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      };
-      registrationAPI(data, headers)
-        .then((res) => {
-          if (res.data.imageError) {
-            setImageError(res.data.imageError);
-          } else {
-            message.success("Successfully registered the user");
-            setLoading(false);
-            setformValues(initialValues);
-            setImageURL(null);
-            setGeneder({ gender: "" });
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          navigate("/error");
-        });
     }
   };
-
   return (
     <div className="p-5">
       <div className="flex justify-center">
-        <p className="text-black text-[40px]">Register your details</p>
+        <p className="text-black text-[40px]">Edit user</p>
       </div>
       <div className="flex justify-center mt-3">
         <form onSubmit={handleSubmit}>
           <div className="parentBox p-4">
             {imageURL ? (
               <div className="flex justify-center">
-                <img className="profileImg" src={imageURL} alt="" />
+                <img
+                  className="profileImg"
+                  src={imageURL}
+                  alt="/Images/profileIcon.avif"
+                />
               </div>
             ) : (
               <div className="flex justify-center">
                 <img
                   className="profileImg"
-                  src="/Images/profileIcon.avif"
-                  alt=""
+                  src={altImg.file}
+                  alt="/Images/profileIcon.avif"
                 />
               </div>
             )}
@@ -287,4 +324,4 @@ function Registration() {
   );
 }
 
-export default Registration;
+export default EditUser;
