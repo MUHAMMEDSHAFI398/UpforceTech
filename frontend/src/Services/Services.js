@@ -4,8 +4,8 @@ export const registrationAPI = (data,headers) => {
     return axios.post('/register', data,headers)
 }
 
-export const getUsersAPI = () => {
-    return axios.get('/users')
+export const getUsersAPI = (currentPage) => {
+    return axios.get(`/users/${currentPage}`)
 }
 
 export const statusChangeAPI = (data) => {
@@ -21,4 +21,13 @@ export const edituserAPI = (id,data) => {
 }
 export const deleteUserAPI = (data) => {
     return axios.patch('/delete',data)
+}
+
+export const searchUserAPI = (data) => {
+    return axios.get(`/search/${data}`)
+}
+
+export const exportToCsvAPI = () => {
+    console.log("kiki");
+    return axios.get('/export-csv')
 }

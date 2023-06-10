@@ -6,8 +6,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import validate from "../Validation/EditUserValidation";
 
 function EditUser() {
+    
   const location = useLocation();
-
   const navigate = useNavigate();
   const initialValues = {
     firstName: "",
@@ -34,10 +34,10 @@ function EditUser() {
       mobile: state.mobile,
       status: state.status,
       location: state.location,
-      file: null,
+      file: null,               
     });
     setGeneder({ gender: state.gender });
-    setaltImg({ file: state.profileImg });
+    setaltImg({ file: state.profileImg }); 
   }, []);
 
   const handlegenderChange = (e) => {
@@ -97,7 +97,7 @@ function EditUser() {
             } else {
               message.success("Successfully Edited the user");
               setLoading(false);
-              navigate("/users");
+              navigate("/");
             }
           })
           .catch((err) => {
@@ -113,7 +113,7 @@ function EditUser() {
             } else {
               message.success("Successfully Edited the user");
               setLoading(false);
-              navigate("/users");
+              navigate("/");
             }
           })
           .catch((err) => {
@@ -136,7 +136,7 @@ function EditUser() {
                 <img
                   className="profileImg"
                   src={imageURL}
-                  alt="/Images/profileIcon.avif"
+                  alt="/images/profileIcon.avif"
                 />
               </div>
             ) : (
@@ -144,7 +144,7 @@ function EditUser() {
                 <img
                   className="profileImg"
                   src={altImg.file}
-                  alt="/Images/profileIcon.avif"
+                  alt="/images/profileIcon.avif"
                 />
               </div>
             )}

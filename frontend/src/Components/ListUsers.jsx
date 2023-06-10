@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { saveAs } from "file-saver";
+import "../Style.css";
 import {
   FaEllipsisV,
   FaTimes,
@@ -7,7 +9,13 @@ import {
   FaEdit,
   FaAngleDown,
 } from "react-icons/fa";
-import { deleteUserAPI, getUsersAPI, statusChangeAPI } from "../Services/Services";
+import {
+  deleteUserAPI,
+  exportToCsvAPI,
+  getUsersAPI,
+  searchUserAPI,
+  statusChangeAPI,
+} from "../Services/Services";
 import { useNavigate } from "react-router-dom";
 
 function ListUsers() {
@@ -15,19 +23,21 @@ function ListUsers() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedRowStatus, setSelectedRowStatus] = useState(null);
   const [users, setUsers] = useState([]);
-  let count=1;
+  const [currentPage, setCurrentPage] = useState(1);
+  let [startingNo, setStartingNo] = useState(1);
+  const [searchClear, setSearchClear] = useState(false);
   useEffect(() => {
-    getUsersAPI()
+    getUsersAPI(currentPage)
       .then((res) => {
         if (res.data.status) {
-          console.log(res.data.users);
           setUsers(res.data.users);
+          setStartingNo(res.data.startingNo);
         }
       })
       .catch((err) => {
         navigate("/error");
       });
-  }, []);
+  }, [currentPage, searchClear]);
   const handleSelectedRowStatus = (index) => {
     setSelectedRowStatus(index);
     setSelectedRow(null);
@@ -60,39 +70,108 @@ function ListUsers() {
       });
   };
 
-  const handleDelete = (id)=>{
-    const data = {id:id}
-    deleteUserAPI(data).then((res)=>{
-        if(res.data.status){
-            const updated = users.filter((value) =>{
-                if(value._id !==id) return value
-            });
-            console.log(updated);
-              setUsers(updated);
+  const handleDelete = (id) => {
+    const data = { id: id };
+    deleteUserAPI(data)
+      .then((res) => {
+        if (res.data.status) {
+          const updated = users.filter((value) => {
+            if (value._id !== id) return value;
+          });
+          setUsers(updated);
+          setSelectedRow(null);
         }
-    })
-  }
+      })
+      .catch((err) => {
+        navigate("/error");
+      });
+  };
 
-  const handleEdit = (id)=>{
-    const userData = users.filter((value)=>value._id === id)
-    navigate('/edit-user',{state:userData[0]})
-  }
+  const handleEdit = (id) => {
+    const userData = users.filter((value) => value._id === id);
+    navigate("/edit-user", { state: userData[0] });
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (users.length === 5) setCurrentPage((prevPage) => prevPage + 1);
+  };
+
+  const handleView = (id) => {
+    const userData = users.filter((value) => value._id === id);
+    navigate("/view-details", { state: userData[0] });
+  };
+
+  const [search, setSearch] = useState({ search: "" });
+
+  const handleSearch = (e) => {
+    const { name, value } = e.target;
+    setSearch({ ...search, [name]: value });
+    if (value === "") {
+      setSearchClear(true);
+    } else {
+      setSearchClear(false);
+    }
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const data = search.search;
+    searchUserAPI(data)
+      .then((res) => {
+        setUsers(res.data.users);
+      })
+      .catch((err) => {
+        navigate("/error");
+      });
+  };
+  const handleDownload = (e) => {
+    e.preventDefault();
+    exportToCsvAPI().then((response) => {
+      const blob = new Blob([response.data], { type: "text/csv" });
+      saveAs(blob, "data.csv");
+    });
+  };
 
   return (
     <div className="p-5">
-      <div className="flex justify-between">
-        <div>
-            
+      <div className="flex flex-wrap justify-between">
+        <form onSubmit={handleSubmit}>
+          <div className="flex justify-start gap-2 ">
+            <input
+              onChange={handleSearch}
+              className="search-input"
+              type="text"
+              name="search"
+            />
+            <button
+              type="submit"
+              className="w-[90px] h-[37px] bg-red-800 rounded-lg text-white"
+            >
+              Search
+            </button>
+          </div>
+        </form>
+        <div className="flex justify-start gap-2 mt-2 sm:mt-0">
+          <button
+            onClick={() => navigate("/add-user")}
+            className="w-[140px] h-[37px] bg-red-800 rounded-lg text-white"
+          >
+            + Adduser
+          </button>
+          <button
+            onClick={handleDownload}
+            className="w-[140px] h-[37px] bg-red-800 rounded-lg text-white"
+          >
+            Export to csv
+          </button>
         </div>
-        <div>
-        <p className="text-black text-[40px]">USERS</p>
-        </div>
-        <div>
-        <p>hfj</p>
-        </div>
-        
       </div>
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+      <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-2">
         <table className="w-full text-sm text-left  dark:text-gray-400">
           <thead className="text-xs text-gray-700 bg-black dark:bg-gray-700 dark:text-gray-400">
             <tr>
@@ -122,7 +201,7 @@ function ListUsers() {
           <tbody>
             {users.map((user, index) => (
               <tr className="bg-white border-b relative" key={user._id}>
-                <td className="px-6 py-4">{count++}</td>
+                <td className="px-6 py-4">{startingNo++}</td>
                 <td className="px-6 py-4">
                   {user.firstName + " " + user.lastName}
                 </td>
@@ -196,17 +275,32 @@ function ListUsers() {
                             />
                           </div>
                         </div>
-                        <div className="flex justify-start gap-5 mt-2 cursor-pointer">
-                          <FaEye className="text-green-500"  />
-                          <div className="mt-[-3px] hover:text-green-500">View</div>
+                        <div
+                          onClick={() => handleView(user._id)}
+                          className="flex justify-start gap-5 mt-2 cursor-pointer"
+                        >
+                          <FaEye className="text-green-500" />
+                          <div className="mt-[-3px] hover:text-green-500">
+                            View
+                          </div>
                         </div>
-                        <div onClick={()=>handleEdit(user._id)} className="flex justify-start gap-5 mt-2 cursor-pointer">
-                          <FaEdit className="text-blue-500"  />
-                          <div className="mt-[-3px] hover:text-blue-500">Edit</div>
+                        <div
+                          onClick={() => handleEdit(user._id)}
+                          className="flex justify-start gap-5 mt-2 cursor-pointer"
+                        >
+                          <FaEdit className="text-blue-500" />
+                          <div className="mt-[-3px] hover:text-blue-500">
+                            Edit
+                          </div>
                         </div>
-                        <div onClick={()=>handleDelete(user._id)} className="flex justify-start gap-5 mt-2 cursor-pointer">
-                          <FaTrash className="text-red-500"  />
-                          <div className="mt-[-3px] hover:text-red-500">Delete</div>
+                        <div
+                          onClick={() => handleDelete(user._id)}
+                          className="flex justify-start gap-5 mt-2 cursor-pointer"
+                        >
+                          <FaTrash className="text-red-500" />
+                          <div className="mt-[-3px] hover:text-red-500">
+                            Delete
+                          </div>
                         </div>
                       </div>
                     )}
@@ -216,6 +310,25 @@ function ListUsers() {
             ))}
           </tbody>
         </table>
+        <div className="container flex justify-end mt-5 mb-5 ">
+          <div className="flex items-center justify-center">
+            <button
+              onClick={handlePreviousPage}
+              className="px-4 py-2 border border-black bg-white rounded"
+            >
+              {`<`}
+            </button>
+            <span className="px-4 py-2 border text-white  bg-red-800">
+              {currentPage}
+            </span>
+            <button
+              onClick={handleNextPage}
+              className="px-4 py-2 border border-black bg-white rounded"
+            >
+              {`>`}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

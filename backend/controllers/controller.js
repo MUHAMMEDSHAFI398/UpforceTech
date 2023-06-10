@@ -1,4 +1,6 @@
 const user = require("../models/userModel");
+const json2csv = require("json2csv").parse;
+const fs = require("fs");
 module.exports = {
   login: async (req, res, next) => {
     const data = req.body;
@@ -19,9 +21,16 @@ module.exports = {
     }
   },
   getUsers: async (req, res, next) => {
-    const users = await user.find({});
-    console.log(users);
-    res.json({ status: true, users: users });
+    try {
+      const itemsPerPage = 5;
+      const page = req.params.id;
+      const currentPage = parseInt(page);
+      const skip = (currentPage - 1) * itemsPerPage;
+      const users = await user.find({}).skip(skip).limit(5);
+      res.json({ status: true, users: users, startingNo: skip + 1 });
+    } catch (err) {
+      next(err);
+    }
   },
   statusChange: (req, res, next) => {
     user
@@ -102,5 +111,40 @@ module.exports = {
       .catch((err) => {
         next(err);
       });
+  },
+  getSearchUsers: async (req, res, next) => {
+    try {
+      const searchValue = req.params.id;
+      const users = await user.find({
+        $or: [
+          { firstName: { $regex: searchValue, $options: "i" } },
+          { lastName: { $regex: searchValue, $options: "i" } },
+          { fullName: { $regex: searchValue, $options: "i" } },
+          {
+            $expr: {
+              $regexMatch: {
+                input: { $concat: ["$firstName", " ", "$lastName"] },
+                regex: searchValue,
+                options: "i",
+              },
+            },
+          },
+        ],
+      });
+      res.json({ status: true, users: users, startingNo: 1 });
+    } catch (err) {
+      next(err);
+    }
+  },
+  exportToCsv: async (req, res, next) => {
+    try {
+      const userData = await user.find({});
+      const csv = json2csv(userData);
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", "attachment; filename=data.csv");
+      res.send(csv);
+    } catch (err) {
+      next(err);
+    }
   },
 };
