@@ -6,7 +6,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import validate from "../Validation/EditUserValidation";
 
 function EditUser() {
-    
   const location = useLocation();
   const navigate = useNavigate();
   const initialValues = {
@@ -34,10 +33,10 @@ function EditUser() {
       mobile: state.mobile,
       status: state.status,
       location: state.location,
-      file: null,               
+      file: null,
     });
     setGeneder({ gender: state.gender });
-    setaltImg({ file: state.profileImg }); 
+    setaltImg({ file: state.profileImg });
   }, []);
 
   const handlegenderChange = (e) => {
@@ -128,11 +127,11 @@ function EditUser() {
       <div className="flex flex-wrap justify-center">
         <p className="text-black text-[30px]">Edit user</p>
         <button
-            onClick={()=>navigate('/')}
-            className="w-[140px] h-[37px] bg-red-800 rounded-lg text-white ml-4 md:ml-[474px]"
-          >
-            View users
-          </button>
+          onClick={() => navigate("/")}
+          className="w-[140px] h-[37px] bg-red-800 rounded-lg text-white ml-4 md:ml-[474px]"
+        >
+          View users
+        </button>
       </div>
       <div className="flex justify-center mt-3">
         <form onSubmit={handleSubmit}>

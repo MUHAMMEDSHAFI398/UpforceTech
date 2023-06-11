@@ -73,7 +73,6 @@ function ViewDetail() {
               {userData.firstName + " " + userData.lastName}
             </h2>
           </div>
-
           <div className="mt-8">
             <h3 className="text-lg font-semibold mb-4 text-gray-800">
               Personal Information

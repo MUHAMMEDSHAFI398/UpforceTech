@@ -69,7 +69,6 @@ function ListUsers() {
         console.log(err);
       });
   };
-
   const handleDelete = (id) => {
     const data = { id: id };
     deleteUserAPI(data)

@@ -61,7 +61,7 @@ function Registration() {
 
     if (Object.keys(errors).length !== 0) {
       setErrors(errors);
-      setLoading(false)
+      setLoading(false);
     } else {
       for (const key in formValues) {
         data.append(key, formValues[key]);
@@ -95,11 +95,11 @@ function Registration() {
       <div className="flex flex-wrap justify-center">
         <p className="text-black text-[30px]">Register your details</p>
         <button
-            onClick={()=>navigate('/')}
-            className="w-[140px] h-[37px] bg-red-800 rounded-lg text-white md:ml-[324px]"
-          >
-            View users
-          </button>
+          onClick={() => navigate("/")}
+          className="w-[140px] h-[37px] bg-red-800 rounded-lg text-white md:ml-[324px]"
+        >
+          View users
+        </button>
       </div>
       <div className="flex justify-center mt-3">
         <form onSubmit={handleSubmit}>
