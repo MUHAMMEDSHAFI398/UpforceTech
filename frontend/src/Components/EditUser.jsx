@@ -125,8 +125,14 @@ function EditUser() {
   };
   return (
     <div className="p-5">
-      <div className="flex justify-center">
-        <p className="text-black text-[40px]">Edit user</p>
+      <div className="flex flex-wrap justify-center">
+        <p className="text-black text-[30px]">Edit user</p>
+        <button
+            onClick={()=>navigate('/')}
+            className="w-[140px] h-[37px] bg-red-800 rounded-lg text-white ml-4 md:ml-[474px]"
+          >
+            View users
+          </button>
       </div>
       <div className="flex justify-center mt-3">
         <form onSubmit={handleSubmit}>
