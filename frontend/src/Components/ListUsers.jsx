@@ -37,7 +37,7 @@ function ListUsers() {
       .catch((err) => {
         navigate("/error");
       });
-  }, [currentPage, searchClear]);
+  }, [currentPage, searchClear,users]);
   const handleSelectedRowStatus = (index) => {
     setSelectedRowStatus(index);
     setSelectedRow(null);
