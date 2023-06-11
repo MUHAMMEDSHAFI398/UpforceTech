@@ -1,5 +1,5 @@
 const express = require('express');
-const controller = require('../Controllers/controller');
+const controller = require('../controllers/controller');
 const Router = express();
 const uploadImage = require('../middleWares/cloudinary')
 
