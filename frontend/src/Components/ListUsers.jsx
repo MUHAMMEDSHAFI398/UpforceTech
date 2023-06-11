@@ -167,7 +167,7 @@ function ListUsers() {
               className="search-input"
               type="text"
               name="search"
-              placeholder="Search by name"
+              placeholder="Search"
             />
             <button
               type="submit"
