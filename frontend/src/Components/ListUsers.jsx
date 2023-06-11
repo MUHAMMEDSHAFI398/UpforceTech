@@ -37,7 +37,7 @@ function ListUsers() {
       .catch((err) => {
         navigate("/error");
       });
-  }, [currentPage, searchClear,users]);
+  }, [currentPage, searchClear]);
   const handleSelectedRowStatus = (index) => {
     setSelectedRowStatus(index);
     setSelectedRow(null);
@@ -80,6 +80,16 @@ function ListUsers() {
           });
           setUsers(updated);
           setSelectedRow(null);
+          getUsersAPI(currentPage)
+            .then((res) => {
+              if (res.data.status) {
+                setUsers(res.data.users);
+                setStartingNo(res.data.startingNo);
+              }
+            })
+            .catch((err) => {
+              navigate("/error");
+            });
         }
       })
       .catch((err) => {
@@ -117,6 +127,15 @@ function ListUsers() {
     } else {
       setSearchClear(false);
     }
+    const updated = users.filter((user) => {
+      const { firstName, lastName, gender } = user;
+      return (
+        firstName.toLowerCase().startsWith(value.toLowerCase()) ||
+        lastName.toLowerCase().startsWith(value.toLowerCase()) ||
+        gender.toLowerCase().startsWith(value.toLowerCase())
+      );
+    });
+    setUsers(updated);
   };
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -143,6 +162,7 @@ function ListUsers() {
         <form onSubmit={handleSubmit}>
           <div className="flex justify-start gap-2 ">
             <input
+              required
               onChange={handleSearch}
               className="search-input"
               type="text"
