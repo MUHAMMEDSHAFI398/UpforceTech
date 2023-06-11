@@ -119,6 +119,7 @@ function ListUsers() {
   const [search, setSearch] = useState({ search: "" });
 
   const handleSearch = (e) => {
+    e.preventDefault()
     const { name, value } = e.target;
     setSearch({ ...search, [name]: value });
     if (value === "") {
