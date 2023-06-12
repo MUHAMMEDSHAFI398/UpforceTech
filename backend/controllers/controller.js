@@ -138,7 +138,7 @@ module.exports = {
   },
   exportToCsv: async (req, res, next) => {
     try {
-      const userData = await user.find({});
+      const userData = await user.find({}).lean();;
       const csv = json2csv(userData);
       res.setHeader("Content-Type", "text/csv");
       res.setHeader("Content-Disposition", "attachment; filename=data.csv");
